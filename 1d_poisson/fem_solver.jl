@@ -1,4 +1,4 @@
-using CSV, DataFrames
+using CSV, DataFrames, LinearAlgebra
 using PyPlot
 
 const q = 1
@@ -68,12 +68,10 @@ end
 U = K \ F
 
 #解析解を計算
-x_exact = range(0, 1, step = 0.01)
-u_exact = []
+exact_function(x) = -0.5 * x^2 + x
 
-for i in x_exact
-    push!(u_exact, -0.5 * i^2 + i)
-end
+x_exact = range(0, 1, step = 0.01)
+u_exact = [exact_function(x) for x in x_exact]
 
 #プロット
 plot(node_coordinates, U, marker = "s", linestyle = "-", label = "FEM")
@@ -81,4 +79,4 @@ plot(x_exact, u_exact, label = "exact")
 xlabel(raw"$x$")
 ylabel(raw"$u$")
 legend()
-savefig("1d_poisson/5-elements.png")
+savefig(string("1d_poisson/", size(relations, 1), "-elements.png"))
