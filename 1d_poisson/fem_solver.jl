@@ -1,7 +1,7 @@
 using CSV, DataFrames, LinearAlgebra
 using PyPlot
 
-const q = 1
+const q = 2
 
 function local_matrix(x₁, x₂)
     lᵉ = x₂ - x₁
@@ -30,6 +30,10 @@ F = zeros(Float64, num_nodes)
 connectivity = CSV.read("1d_poisson/connectivity.csv", DataFrame)
 relations = [connectivity.node1 connectivity.node2]
 
+#Neumann B.C.
+node_neumann = 1
+neuman_value = -2 #外向き方向微分に注意
+
 # 全体マトリックスとベクトルを構築
 for i = 1:size(relations, 1)
     x₁ = node_coordinates[relations[i, 1]]
@@ -37,6 +41,13 @@ for i = 1:size(relations, 1)
 
     kᵉ = local_matrix(x₁, x₂)
     fᵉ = local_vector(x₁, x₂)
+
+    if relations[i, 2] == node_neumann
+        fᵉ += [0, neuman_value]
+    elseif relations[i, 1] == node_neumann
+        fᵉ += [neuman_value, 0]
+    end
+
     for j = 1:2
         for k = 1:2
             K[relations[i, j], relations[i, k]] += kᵉ[j, k]
@@ -45,9 +56,9 @@ for i = 1:size(relations, 1)
     end
 end
 
-# Dirichlet 境界条件を適用
-i = 1
-F[i] = 0
+# Dirichlet B.C.
+i = num_nodes
+F[i] = 1
 
 for j = 1:size(K, 1) # 境界条件となる列の対角成分を1にしてそれ以外を0にする
     if j == i
@@ -60,6 +71,7 @@ end
 #行列の対称性を維持するために対応する列の係数を消去
 for j = 1:size(K, 1)
     if j != i
+        F[j] -= K[j, i] * F[i]
         K[j, i] = 0
     end
 end
@@ -68,7 +80,7 @@ end
 U = K \ F
 
 #解析解を計算
-exact_function(x) = -0.5 * x^2 + x
+exact_function(x) = -x^2 + 2x
 
 x_exact = range(0, 1, step = 0.01)
 u_exact = [exact_function(x) for x in x_exact]

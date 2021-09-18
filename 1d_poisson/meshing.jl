@@ -1,6 +1,6 @@
 using CSV, DataFrames
 
-M = 10
+M = 5
 if length(ARGS) > 1
     M = parse(UInt, ARGS[1]) #要素数
 end
