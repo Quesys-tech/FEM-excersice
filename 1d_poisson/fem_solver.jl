@@ -1,5 +1,4 @@
-using CSV, DataFrames, LinearAlgebra
-using PyPlot
+using CSV, DataFrames, LinearAlgebra,Plots, LaTeXStrings
 
 const q = 2
 
@@ -79,16 +78,9 @@ end
 # 連立方程式を解く
 U = K \ F
 
-#解析解を計算
-exact_function(x) = -x^2 + 2x
-
-x_exact = range(0, 1, step = 0.01)
-u_exact = [exact_function(x) for x in x_exact]
+exact_function(x) = -x^2 + 2x #解析解
 
 #プロット
-plot(node_coordinates, U, marker = "s", linestyle = "-", label = "FEM")
-plot(x_exact, u_exact, label = "exact")
-xlabel(raw"$x$")
-ylabel(raw"$u$")
-legend()
+plot(node_coordinates, U, marker = :circle, label = "FEM")
+plot!(exact_function,0,1, label = "exact",xlabel=L"x",ylabel=L"u",legend=:bottomright)
 savefig(string("1d_poisson/", size(relations, 1), "-elements.png"))
