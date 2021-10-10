@@ -1,6 +1,6 @@
-using CSV, DataFrames, Plots
+using CSV, DataFrames
 
-N_elements = 5 # 1辺あたりの同じ形状の要素数
+N_elements = 10 # 1辺あたりの同じ形状の要素数
 N_nodes = N_elements + 1 # 1辺あたりの節点数
 nodes = DataFrame(x=Float64[], y=Float64[])
 
