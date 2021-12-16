@@ -1,6 +1,6 @@
 *.bib.bak
 *.bib.sav
-*.bib.bcf
+*.bcf
 *.bib.run.xml
 
 .vscode/
