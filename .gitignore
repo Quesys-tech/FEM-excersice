@@ -1,0 +1,6 @@
+*.bib.bak
+*.bib.sav
+*.bib.bcf
+*.bib.run.xml
+
+.vscode/
