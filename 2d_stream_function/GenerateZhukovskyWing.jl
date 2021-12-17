@@ -1,18 +1,22 @@
-using Plots
+using Plots, CSV, DataFrames
 
 c = 1.0
-ξ₀ = -0.1*c
-η₀ = 0.1*c
+ζ₀ = -0.1 * c + 0.1 * c * im
 
-θ = [i*2π for i in 0:0.125/2.0:1]
-r = sqrt(η₀^2 + (c-ξ₀)^2)
+θ = [i * 2π for i = 0:0.125/2.0:1]
+ζ = ζ₀ .+ abs(c - ζ₀) * exp.(im * θ)
 
-ξ = r*cos.(θ).+ξ₀
-η = r*sin.(θ).+η₀
+z = ζ + 1.0 ./ ζ
 
-x = ξ.+(c^2*ξ)./(ξ.^2+η.^2)
-y = η.-(c^2*η)./(ξ.^2+η.^2)
+ℜ(z::Complex) = z.re
+ℑ(z::Complex) = z.im
 
-plot(ξ,η,label="\$\\xi\\,\\mathrm{space}\$",aspect_ratio=1.0,legendfontsize=16)
-plot!(x,y,label="\$z\\,\\mathrm{space}\$",aspect_ratio=1.0,legendfontsize=16)
+#write aerofoil shape to  CSV file
+df = DataFrame(x=ℜ.(z), y=ℑ.(z))
+CSV.write("2d_stream_function/ZhukovskyWing.csv",df)
+
+#Plot
+plot(ℜ.(ζ), ℑ.(ζ), label = "\$\\zeta\$")
+plot!(ℜ.(z), ℑ.(z), label = "\$z\$")
+plot!(;aspect_ratio = 1.0, xtickfontsize=16, ytickfontsize=16, legendfontsize = 16, grid = false)
 savefig("2d_stream_function/ZhukovskyWing.pdf")

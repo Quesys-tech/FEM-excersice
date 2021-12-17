@@ -77,7 +77,7 @@ Julia言語は利点も多数あるが, 新しいプログラミング言語で�
 非圧縮完全流体の支配方程式は以下に示す連続の式(式\eqref{eq:continuity})とEulerの運動方程式(式\eqref{eq:euler})である. 
 \begin{align}
     \nabla\cdot\bm{u} &= 0 \label{eq:continuity} \\
-    \frac{\mathrm{D}\bm{u}}{\mathrm{D}t}=\pdv{\bm{u}}{t} +(\bm{u}\cdot\nabla)\bm{u} &= -\frac{1}{\rho}\nabla p + \bm{f} \label{eq:euler}
+    \pdv{\bm{u}}{t} +(\bm{u}\cdot\nabla)\bm{u} &= -\frac{1}{\rho}\nabla p + \bm{f} \label{eq:euler}
 \end{align}
 ここで速度を$\bm{u}$, 密度を$\rho$, 圧力を$p$, 外力を$\bm{f}$とした.
 Euler方程式は非圧縮かつ完全流体という仮定を入れたにもかかわらず, 解析的な解を求めることはほぼ不可能である
@@ -169,23 +169,24 @@ Laplace方程式
 \end{align}
 となる.
 次に流体の流入境界を考える.
-流入境界は流体領域の外向き法線ベクトルを$\bm{n}_\mathrm{in}$として, 流入速度を$U$としたときに
+流入境界は流体領域の外向き法線ベクトルを$\bm{n}_\mathrm{in}$として, 流入速度を$U_\mathrm{in}$としたときに
 \begin{align}
-    \bm{u} &= -U\bm{n}_\mathrm{in} \\  
-    \nabla\Phi \cdot \bm{n}_\mathrm{in} &= -U\bm{n}_\mathrm{in} \cdot \bm{n}_\mathrm{in} \\
-    \nabla\Phi \cdot \bm{n}_\mathrm{in} &= -U
+    \bm{u} &= -U_\mathrm{in}\bm{n}_\mathrm{in} \\  
+    \nabla\Phi \cdot \bm{n}_\mathrm{in} &= -U_\mathrm{in}\bm{n}_\mathrm{in} \cdot \bm{n}_\mathrm{in} \\
+    \nabla\Phi \cdot \bm{n}_\mathrm{in} &= -U_\mathrm{in}
 \end{align}
 が得られる. $\bm{n}_\mathrm{in} \cdot \bm{n}_\mathrm{in} =1$を用いた.
 最後に流出境界条件を考える. 
 流出境界は外向き法線ベクトル$\bm{n}_\mathrm{out}$に沿って一様の速さで
 流体が流出するとモデリングする
-\footnote{これは計算しやすいため導入している. また流体の流出条件の与え方は深い沼.}.
+\footnote{これは計算しやすいため導入している. また流体の流出条件の与え方も様々な研究がある.}.
 このとき, 接線ベクトル$\bm{t}_\mathrm{out}$と速度場で以下の関係が成立する.
 \begin{align}
     \bm{u}\cdot\bm{t}_\mathrm{out} =  \grad\Phi\cdot\bm{t}_\mathrm{out} =0
 \end{align}
-これより, 境界に沿って速度場を線積分しても一切の変化がないため,
-流出境界はDirichlet条件となる\footnote{一般にポテンシャルは基準のとり方によって変わるので境界条件の値のとり方もそれによって変わる}.
+つまり, 流出境界に沿って速度ポテンシャル$\Phi$一切の変化がない.
+よって速度ポテンシャルは流出境界において同じ値をとり, 
+流出境界はDirichlet条件となる\footnote{一般にポテンシャルは基準のとり方によって変わるので境界条件の値は自由に決められる}.
 
 \section{有限要素解析}
 文献\cite{Larson2013}を参考にして式\eqref{eq:laplace}のLaplace方程式を解く.
@@ -199,10 +200,38 @@ Laplace方程式
 ここで, $\partial\Omega_D$はDirichlet境界が貼られている境界で, 
 $\partial\Omega_N$がNeumann境界条件が貼られている境界である.
 
-\section{結果}
-FEMで翼の周りの流れを計算した.
+\section{翼型の生成}
+今回は計算対象として翼型のまわりの流れを計算する. 
+翼型はさまざまなものがあるが, Zhukovsky変換を用いて生成した. 
+現在の旅客機ではスーパークリティカル翼型をベースに設計されているが
+\cite{Rinoie2011}\footnote{2次元翼型については文献\cite{Rinoie2011}の5章が詳しい},
+簡単な変数変換によって生成でき, 
+2次元翼理論による結果の検証がしやすいためこれを用いる.
 
+Zhukovsky変換は複素平面$\zeta$から複素平面$z$に対して
+以下の複素関数で変換を行うものである.
+\begin{align}
+    z = \zeta +\frac{1}{\zeta}
+\end{align}
+この変換の特徴として, $z$を円とすると$z$が翼型になるということと,
+$\zeta\neq 0$において正則関数になる特徴がある.
+今回は$\zeta$を以下のように定めた.
+\begin{align}
+    |\zeta- \zeta_0| = |c-\zeta_0|
+\end{align}
+ここで, $\zeta_0 = -0.1+0.1i$, $c=1$と定めた.
 
+Julia言語でZhukovsky変換を実装したコードをリストに示し, 
+画像を図\ref{fig:zhukovsky}に示す.
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=8cm]{ZhukovskyWing.pdf}
+    \caption{Zhukovsky変換の結果}
+    \label{fig:zhukovsky}
+\end{figure}
+
+\section{結果と考察}
 計算結果が解析解と定性的に一致しており, 正しく問題を解くことができたと考えられる.
+
 \printbibliography[title=参考文献]
 \end{document}
