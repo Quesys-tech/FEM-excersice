@@ -13,10 +13,10 @@ z = ζ + 1.0 ./ ζ
 
 #write aerofoil shape to  CSV file
 df = DataFrame(x=ℜ.(z), y=ℑ.(z))
-CSV.write("2d_stream_function/ZhukovskyWing.csv",df)
+CSV.write("2d_velocity_potential/ZhukovskyWing.csv",df)
 
 #Plot
 plot(ℜ.(ζ), ℑ.(ζ), label = "\$\\zeta\$")
 plot!(ℜ.(z), ℑ.(z), label = "\$z\$")
 plot!(;aspect_ratio = 1.0, xtickfontsize=16, ytickfontsize=16, legendfontsize = 16, grid = false)
-savefig("2d_stream_function/ZhukovskyWing.pdf")
+savefig("2d_velocity_potential/ZhukovskyWing.pdf")
