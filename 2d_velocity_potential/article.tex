@@ -10,6 +10,10 @@
 \usepackage{xcolor}
 \usepackage{algorithm,algpseudocode}
 \usepackage[sorting=none]{biblatex}
+\usepackage{luatexja-fontspec}
+\usepackage{minted}
+\usepackage{newunicodechar}
+
 \addbibresource{references.bib}
 
 \usetikzlibrary{intersections, calc, arrows}
@@ -30,6 +34,12 @@
 \renewcommand{\algorithmicrequire}{\textbf{Input:}}
 \renewcommand{\algorithmicensure}{\textbf{Output:}}
 
+
+\newfontface\mathsymbolfont{Latin Modern Math}
+\setmonofont{[JuliaMono-Medium.ttf]}
+\newunicodechar{ₗ}{\scalebox{0.5}{l}}
+\newunicodechar{ₜ}{\scalebox{0.5}{t}}
+
 \begin{document}
 \title{Julia言語でFEMを書いてポテンシャル流れを解く}
 \author{きゅーしす}
@@ -40,6 +50,7 @@
     この例として, 筆者が自作した2次元Poisson方程式の有限要素法(Finite Element method, FEM)のコードを取り上げ, 
     Julia言語の特徴を実例を交えながら示す. 
 \end{abstract}
+
 
 
 \section{イントロダクション}
@@ -529,7 +540,7 @@ NACA 2412はNACA 4桁翼型と呼ばれるグループに属しており, 翼型
     y_c &=
     \begin{cases}
         \frac{m}{p^2}(2px-x^2),& 0\leq x\leq p\\
-        \frac{2m}{(1-p)^2}[(1-2p)+2px-x^2],& p< x\leq 1
+        \frac{m}{(1-p)^2}[(1-2p)+2px-x^2],& p< x\leq 1
     \end{cases}
 \end{align}
 また, パラメータとして
@@ -547,15 +558,24 @@ NACA 2412はNACA 4桁翼型と呼ばれるグループに属しており, 翼型
     x_L &= x+y_t\sin{\theta},&y_L &= y_c-y_t\cos{\theta}
 \end{align}
 と定義される\cite{Abbott1945}.
-ここで$\theta$は翼型中心線の接線と$x$軸のなす角で,
+ここで$\theta$は翼型中心線の接線と$x$軸のなす角で, 以下の式で与えられる.
 \begin{align}
-    \theta &= \arctan{\dv{y_c}{x}} \\
-    \dv{y_c}(x) &= 
-    \begin{cases}
-        \frac{2m}{p^2}(p-x), & 0\leq x\leq p \\
-        \frac{2m}{(1-p)^2}(p-x) & p <x\leq 1
-    \end{cases}
+    \theta &= \arctan{\dv{y_c}{x}}
 \end{align}
+
+Julia言語でZhukovsky変換を実装したコードを以下に示し\footnote{下付き文字のlとtはフォントに対応する文字がなかったので小さいlとtでごまかしている}, 
+画像を図\ref{fig:NACA2412}に示す.
+
+\inputminted[linenos, breaklines]{julia}{plot_NACA2412.jl}
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=8cm]{NACA2412.pdf}
+    \caption{NACA 2412翼型}
+    \label{fig:NACA2412}
+\end{figure}
+このように, 数式とコードが近く,使える文字が多いのがJulia言語の特徴である.
+また, プロットライブラリも充実しており, 計算コードとプロットを一つにまとめられるという利点がある
+\footnote{筆者はC++とPythonで計算とプロットが分かれているのをJuliaで統合しつつある.}
 
 \section{結果と考察}
 計算結果が解析解と定性的に一致しており, 正しく問題を解くことができたと考えられる.
