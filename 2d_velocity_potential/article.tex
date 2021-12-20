@@ -436,19 +436,18 @@ Gauss求積は被積分関数$\phi$に対して以下の式で表される.
 \end{align}
 有限個の積分点$x_i$に対して重み$w_i$を乗じてその和で近似する.
 今回は積分点2点で計算する.
-このとき積分点は$\pm\frac{1}{\sqrt{3}}$, 重みは$1$となることが知られている.
+このとき積分点は$\pm\frac{1}{\sqrt{3}}$, 重みは$1$となることが知られている\cite{Yasuda2008}.
 
 他の積分路でも同様の計算が成立するので境界積分が打ち消されない場合,
-式\eqref{eq:nordal_flow}は以下のように積分を近似できる.
+式\eqref{eq:nordal_flow}は$i,j,k$は$1,2,3$の偶置換として, 以下のように積分を近似できる.
 \begin{align}
-    \bm{\gamma}_i(t) &= \bm{x}^e_k-\bm{x}^e_j \\
+    \bm{\gamma}_i(t) &= \frac{1+t}{2}\bm{x}^e_k+\frac{1-t}{2}\bm{x}^e_j \\
     \begin{split}
         \bm{f}^e &=\int_{\partial\Omega^e_N}\bm{N}^e f_N\dd{\Gamma} \\
-        &= \sum_{i=1}^3 \int_{0}^1 \bm{N}^e(\bm{\gamma}_i(t))f_N(\bm{\gamma}_i(t))|\bm{x}^e_k-\bm{x}^e_j|\dd{t} \\
-        &\approx\sum_{i=1}^3\qty(\sum_{l=1}^2\bm{N}^e(\bm{\gamma}_i(t_l))f_N(\bm{\gamma}_i(t_l))|\bm{x}^e_k-\bm{x}^e_j|w_l)
+        &= \sum_{i=1}^3 \qty[\int_{-1}^1 \bm{N}^e(\bm{\gamma}_i(t))f_N(\bm{\gamma}_i(t))\frac{|\bm{x}^e_k-\bm{x}^e_j|}{2}\dd{t}] \\
+        &\approx\sum_{i=1}^3\qty[\sum_{l=1}^2\bm{N}^e\qty(\bm{\gamma}_i\qty(\frac{(-1)^2}{\sqrt{3}}))f_N\qty(\bm{\gamma}_i\qty(\frac{(-1)^2}{\sqrt{3}}))\frac{|\bm{x}^e_k-\bm{x}^e_j|}{2}]
     \end{split}
 \end{align}
-ここで$i,j,k$は$1,2,3$の偶置換である.
 
 さらに先程計算した要素剛性マトリックスから全体剛性マトリックスを求める.
 要素剛性マトリックスから全体剛性マトリックスを求める操作はアセンブル操作と呼ばれる.
@@ -485,8 +484,34 @@ $\mathrm{faces}$は要素を指定するノードが並んでいいる2次元配
         \EndFor
     \end{algorithmic}
 \end{algorithm}
+また, $A$は疎行列となるので, 多くの場合は$A$をCSR (Compressed Sparse Row)形式や
+CSC (Compressed Sparse Column)形式で格納される.
 
-局所等価接点流量ベクトルも同様に全体等価接点流量ベクトルをアセンブル操作ができる.
+なお, 局所等価接点流量ベクトルも同様に全体等価接点流量ベクトルをアセンブル操作ができる.
+
+最後にDirichlet条件の代入を行う.
+接点$i$がDirichlet条件$u_D$だった場合を述べる.
+連立方程式を解いたときもその条件が維持される必要があるので
+$i$行目は$u_i=u_D$が成立して, 他の行に$u_i$の項が含まれないようにする.
+また, 全体剛性行列は対象行列であるという性質が数値計算の上では便利であるため,
+対称性を残す.
+これら2つの要件をアルゴリズムにするとアルゴリズム\ref{alg:zero_clear}が得られる.
+\begin{algorithm}
+    \caption{Applying Dirichlet boundary condition}
+    \label{alg:zero_clear}
+    \begin{algorithmic}
+        \Require $A \in\mathbb{R}^{M\times M}$, $f \in\mathbb{R}^{M}$, $i$, $u_D$
+        \Ensure $A$, $f$
+        \State $A[i,i] \leftarrow 1$
+        \State $f[i] \leftarrow u_D$
+        \For{$j\neq i$}
+            \State $A[i, j] \leftarrow 0$ 
+            \State $f[j] \leftarrow  f[j] - A[j,i]u_D $
+            \State $A[j,i] \leftarrow 0$
+        \EndFor
+    \end{algorithmic}
+\end{algorithm}
+疎行列のデータ形式は0の領域を保存せずに圧縮するので0の入った項を最後に削除するコードを実装するとよい.
 
 \section{翼型の生成}
 今回は計算対象として翼型のまわりの流れを計算する. 
