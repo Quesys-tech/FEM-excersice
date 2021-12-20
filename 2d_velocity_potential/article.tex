@@ -515,33 +515,47 @@ $i$行目は$u_i=u_D$が成立して, 他の行に$u_i$の項が含まれない�
 
 \section{翼型の生成}
 今回は計算対象として翼型のまわりの流れを計算する. 
-翼型はさまざまなものがあるが, Zhukovsky変換を用いて生成した. 
-現在の旅客機ではスーパークリティカル翼型をベースに設計されているが
-\cite{Rinoie2011}\footnote{2次元翼型については文献\cite{Rinoie2011}の5章が詳しい},
-簡単な変数変換によって生成でき, 
-2次元翼理論による結果の検証がしやすいためこれを用いる.
+翼型はさまざまなものがあるが, 
+NACA翼型の一つであるNACA 2412を用いる.
+NACA翼型はNACA(National Advisory Committee for Aeronautics, 
+連邦航空諮問委員会, NASAの前身)が開発した翼型である.
 
-Zhukovsky変換は複素平面$\zeta$から複素平面$z$に対して
-以下の複素関数で変換を行うものである.
+文献\cite{Rinoie2011}を参考にNACA 2412を説明する.
+NACA 2412はNACA 4桁翼型と呼ばれるグループに属しており, 翼型断面が多項式で定義されている.
+翼型の厚み分布$y_t$, 前縁半径$r_t$, 翼型中心線$y_c$を用いて定義する.
 \begin{align}
-    z = \zeta +\frac{1}{\zeta}
+    y_t &= 5t \qty(0.2969 \sqrt{x} - 0.1260 x - 0.3516 x^2 + 0.2843 x^3 - 0.1015 x^4) \\
+    r_t &= 1.1019t^2 \\
+    y_c &=
+    \begin{cases}
+        \frac{m}{p^2}(2px-x^2),& 0\leq x\leq p\\
+        \frac{2m}{(1-p)^2}[(1-2p)+2px-x^2],& p< x\leq 1
+    \end{cases}
 \end{align}
-この変換の特徴として, $z$を円とすると$z$が翼型になるということと,
-$\zeta\neq 0$において正則関数になる特徴がある.
-今回は$\zeta$を以下のように定めた.
+また, パラメータとして
+\begin{itemize}
+    \item $x$ : 翼弦の相対的な位置(前縁を0とし, 後縁を1とする)
+    \item $m$ : 翼型の厚みの比(翼型の番号の1000の位を100で割る, 今回は$m=0.02$)
+    \item $p$ : 反りが最大になる$x$の値(翼型の番号の100の位を10で割る, 今回は$p=0.4$)
+    \item $t$ : 翼型の最大厚みの比(翼型の番号の下二桁を100で割る, 今回は$t=0.12$)
+\end{itemize}
+がある.
+主翼の上半分を構成する曲線を$(x_U,y_U)$とし, 下半分を構成する曲線を$(x_L,y_L)$とする.
+このとき,
 \begin{align}
-    |\zeta- \zeta_0| = |c-\zeta_0|
+    x_U &= x-y_t\sin{\theta},&y_U &= y_c+y_t\cos{\theta}\\
+    x_L &= x+y_t\sin{\theta},&y_L &= y_c-y_t\cos{\theta}
 \end{align}
-ここで, $\zeta_0 = -0.1+0.1i$, $c=1$と定めた.
-
-Julia言語でZhukovsky変換を実装したコードをリストに示し, 
-画像を図\ref{fig:zhukovsky}に示す.
-\begin{figure}[htbp]
-    \centering
-    \includegraphics[width=8cm]{ZhukovskyWing.pdf}
-    \caption{Zhukovsky変換の結果}
-    \label{fig:zhukovsky}
-\end{figure}
+と定義される\cite{Abbott1945}.
+ここで$\theta$は翼型中心線の接線と$x$軸のなす角で,
+\begin{align}
+    \theta &= \arctan{\dv{y_c}{x}} \\
+    \dv{y_c}(x) &= 
+    \begin{cases}
+        \frac{2m}{p^2}(p-x), & 0\leq x\leq p \\
+        \frac{2m}{(1-p)^2}(p-x) & p <x\leq 1
+    \end{cases}
+\end{align}
 
 \section{結果と考察}
 計算結果が解析解と定性的に一致しており, 正しく問題を解くことができたと考えられる.
@@ -587,5 +601,35 @@ Gaussの発散定理
     &=- \int_\Omega\nabla\phi\cdot\nabla\psi\dd{\Omega}
     +\int_{\partial\Omega}\phi\nabla\psi\cdot\bm{n}\dd{\Gamma}
 \end{align}
+
+\section{ボツになった内容}
+\subsection{Zhukovsky変換を用いた翼の生成}
+Zhukovsky変換を用いて翼型を生成した. 
+現在の旅客機ではスーパークリティカル翼型をベースに設計されているが
+\cite{Rinoie2011}\footnote{2次元翼型については文献\cite{Rinoie2011}の5章が詳しい},
+簡単な変数変換によって生成でき, 
+2次元翼理論による結果の検証がしやすいためこれを用いる.
+
+Zhukovsky変換は複素平面$\zeta$から複素平面$z$に対して
+以下の複素関数で変換を行うものである.
+\begin{align}
+    z = \zeta +\frac{1}{\zeta}
+\end{align}
+この変換の特徴として, $z$を円とすると$z$が翼型になるということと,
+$\zeta\neq 0$において正則関数になる特徴がある.
+今回は$\zeta$を以下のように定めた.
+\begin{align}
+    |\zeta- \zeta_0| = |c-\zeta_0|
+\end{align}
+ここで, $\zeta_0 = -0.1+0.1i$, $c=1$と定めた.
+
+Julia言語でZhukovsky変換を実装したコードをリストに示し, 
+画像を図\ref{fig:zhukovsky}に示す.
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=8cm]{zhukovsky_aerofoil.pdf}
+    \caption{Zhukovsky変換の結果}
+    \label{fig:zhukovsky}
+\end{figure}
 
 \end{document}
