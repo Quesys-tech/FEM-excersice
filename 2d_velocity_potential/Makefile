@@ -14,4 +14,4 @@ clean-temp:
 
 .PHONY: clean
 clean: clean-temp
-	rm article.pdf
+	latexmk -C article.tex
