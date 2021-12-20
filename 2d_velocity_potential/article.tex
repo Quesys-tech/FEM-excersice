@@ -563,19 +563,25 @@ NACA 2412はNACA 4桁翼型と呼ばれるグループに属しており, 翼型
     \theta &= \arctan{\dv{y_c}{x}}
 \end{align}
 
-Julia言語でZhukovsky変換を実装したコードを以下に示し\footnote{下付き文字のlとtはフォントに対応する文字がなかったので小さいlとtでごまかしている}, 
+Julia言語でZhukovsky変換を実装したコードを以下に示し
+\footnote{下付き文字のlとtはフォントに対応する文字がなかったので小さいlとtでごまかしている}, 
 画像を図\ref{fig:NACA2412}に示す.
 
 \inputminted[linenos, breaklines]{julia}{plot_NACA2412.jl}
 \begin{figure}[htbp]
     \centering
-    \includegraphics[width=8cm]{NACA2412.pdf}
+    \includegraphics[width=12cm]{NACA2412.pdf}
     \caption{NACA 2412翼型}
     \label{fig:NACA2412}
 \end{figure}
 このように, 数式とコードが近く,使える文字が多いのがJulia言語の特徴である.
+たとえば関数を数式のように定義したり(8行から12行), ベクトルの配列を柔軟に追加できたり, 
+べき乗の計算も簡単に行えたりとコードの表現を簡潔にできる
 また, プロットライブラリも充実しており, 計算コードとプロットを一つにまとめられるという利点がある
-\footnote{筆者はC++とPythonで計算とプロットが分かれているのをJuliaで統合しつつある.}
+\footnote{筆者はC++とPythonで計算とプロットが分かれているものをJuliaで統合しつつある.}
+
+次にこの翼型を解析領域でメッシュを切って要素ごとに分割を行う.
+メッシャーとしてGmsh\cite{Geuzaine2009}を用いる.
 
 \section{結果と考察}
 計算結果が解析解と定性的に一致しており, 正しく問題を解くことができたと考えられる.
