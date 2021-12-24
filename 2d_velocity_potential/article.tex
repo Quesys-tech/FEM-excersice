@@ -51,8 +51,6 @@
     Julia言語の特徴を実例を交えながら示す. 
 \end{abstract}
 
-
-
 \section{イントロダクション}
 Julia言語は近年開発された言語で, 自由なライセンスで高速で簡潔に記述でき, 
 強力なマクロがあり, 汎用性を持ち, 統計や科学技術計算にも強い\cite{Bezanson2012}. 
@@ -563,14 +561,18 @@ NACA 2412はNACA 4桁翼型と呼ばれるグループに属しており, 翼型
     \theta &= \arctan{\dv{y_c}{x}}
 \end{align}
 
-Julia言語でZhukovsky変換を実装したコードを以下に示し
+Julia言語でZhukovsky変換を実装したコードをリスト\ref{lst:NACA2412}に示し
 \footnote{下付き文字のlとtはフォントに対応する文字がなかったので小さいlとtでごまかしている}, 
 画像を図\ref{fig:NACA2412}に示す.
 
-\inputminted[linenos, breaklines]{julia}{plot_NACA2412.jl}
+\begin{listing}
+    \caption{NACA2412の計算とプロットのコード}
+    \label{lst:NACA2412}
+    \inputminted[linenos, breaklines,frame=lines]{julia}{plot_NACA2412.jl}
+\end{listing}
 \begin{figure}[htbp]
     \centering
-    \includegraphics[width=12cm]{NACA2412.pdf}
+    \includegraphics[width=8cm]{NACA2412.pdf}
     \caption{NACA 2412翼型}
     \label{fig:NACA2412}
 \end{figure}
@@ -581,7 +583,7 @@ Julia言語でZhukovsky変換を実装したコードを以下に示し
 \footnote{筆者はC++とPythonで計算とプロットが分かれているものをJuliaで統合しつつある.}
 
 次にこの翼型を解析領域でメッシュを切って要素ごとに分割を行う.
-メッシャーとしてGmsh\cite{Geuzaine2009}を用いる.
+メッシャーとしてGmsh\cite{Geuzaine2009}とそのラッパーであるGmsh.jl\footnote{\url{https://github.com/JuliaFEM/Gmsh.jl}}を用いる.
 
 \section{結果と考察}
 計算結果が解析解と定性的に一致しており, 正しく問題を解くことができたと考えられる.
